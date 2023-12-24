@@ -1,21 +1,15 @@
-import { PlatformMessageConvert } from './interfaces/platform-message-convert';
+import { Injectable } from '@nestjs/common';
+import { ChannelType } from './enums';
+import { LineConverter, MessengerConverter } from './channels-converter';
 
+@Injectable()
 export class ConvertMessageHandler {
-  private readonly channels: Record<string, PlatformMessageConvert> = {};
+  private readonly sources = {
+    [ChannelType.LINE]: new LineConverter(),
+    [ChannelType.MESSENGER]: new MessengerConverter(),
+  };
 
-  constructor(private readonly platform: PlatformMessageConvert) {}
-
-  // register(channelType: ChannelType, gateway: PlatformMessageConvert) {
-  //   this.channels[channelType] = gateway;
-  // }
-
-  convert(data: unknown) {
-    // this.channels[channelType] = this.platform;
-
-    // if (!this.channels[channelType])
-    //   throw new Error('Unsupported channel type.');
-
-    return this.platform.convert(data);
-    // return this.channels[channelType].convert(data);
+  convert(data: any, channelType: ChannelType) {
+    return this.sources[channelType].convert(data);
   }
 }
